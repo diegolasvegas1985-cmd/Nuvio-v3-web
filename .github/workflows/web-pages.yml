@@ -60,7 +60,7 @@ jobs:
           fi
 
       - name: Build
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace -Dorg.gradle.jvmargs="-Xmx8g -XX:MaxMetaspaceSize=1536m -Dfile.encoding=UTF-8" -Pkotlin.daemon.jvmargs=-Xmx4g
+        run: ./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx5g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
 
       - name: Configure the CORS proxy
         env:
@@ -95,3 +95,4 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+        

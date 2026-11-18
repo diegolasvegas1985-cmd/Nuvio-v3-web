@@ -1,14 +1,5 @@
 name: Web (GitHub Pages)
 
-# Builds the web version (Kotlin/Wasm, single page) and publishes it on GitHub Pages.
-# Requirements:
-#   - Settings > Pages > Source: "GitHub Actions".
-#   - Secret NUVIO_LOCAL_PROPERTIES_BASE64 (same as the Android release): API keys of the runtime config.
-#   - Repository variables (Settings > Secrets and variables > Actions > Variables):
-#       NUVIO_CORS_PROXY        address of the Cloudflare worker (cloudflare-cors-proxy.js)
-#       NUVIO_CORS_PROXY_TOKEN  optional PROXY_TOKEN of the worker. It ends up in the public page:
-#                               it only stops casual reuse, ALLOWED_ORIGINS on the worker is the real limit.
-
 on:
   push:
     branches:
@@ -34,6 +25,7 @@ jobs:
   build:
     name: Build web version
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     env:
       RELEASE_PROPERTIES_BASE64: ${{ secrets.NUVIO_LOCAL_PROPERTIES_BASE64 }}
     steps:
@@ -60,7 +52,7 @@ jobs:
           fi
 
       - name: Build
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx5g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8"
+        run: ./gradlew :composeApp:wasmJsBrowserDistribution --stacktrace --no-daemon -Dorg.gradle.jvmargs="-Xmx6g -XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" -Pkotlin.wasm.dwarf.enabled=false
 
       - name: Configure the CORS proxy
         env:
@@ -85,7 +77,6 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    # Pages on private repositories needs a paid plan: private copies only build.
     if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     environment:
